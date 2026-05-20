@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    @apply box-border;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    @apply bg-black text-white;
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at top, rgba(255,159,28,0.15), transparent 35%),
+      radial-gradient(circle at bottom right, rgba(255,159,28,0.12), transparent 20%),
+      #000000;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    @apply font-serif font-bold;
+}
+
+.btn-primary {
+    @apply px-6 py-3 bg-orange-500 text-black font-semibold rounded-xl shadow-lg hover:bg-orange-400 transition-all duration-200;
+}
+
+.btn-secondary {
+    @apply px-6 py-3 bg-neutral-900 text-orange-400 font-semibold rounded-xl border border-orange-500 hover:bg-orange-500 hover:text-black transition-all duration-200;
+}
+
+.btn-outline {
+    @apply px-6 py-3 border-2 border-orange-500 text-orange-400 rounded-xl hover:bg-orange-500 hover:text-black transition-all duration-200;
+}
+
+.card {
+    @apply bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 overflow-hidden;
+}
+
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem;
+    background: linear-gradient(180deg, #090909 0%, #120900 55%, #000000 100%);
+}
+
+.auth-card {
+    @apply w-full max-w-xl rounded-3xl p-10 border border-orange-500 bg-[#111111] shadow-[0_20px_60px_rgba(0,0,0,0.55)];
+}
+
+.auth-title {
+    @apply text-4xl font-serif font-bold mb-3 text-white;
+}
+
+.auth-subtitle {
+    @apply text-base text-gray-300 max-w-2xl;
+}
+
+.auth-input {
+    @apply bg-[#111111] border border-gray-700 text-white placeholder:text-gray-500;
+}
+
+.input-field {
+    @apply w-full px-4 py-3 rounded-xl focus:outline-none focus:border-orange-400 transition-colors duration-200;
+}
+
+.input-field:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(255,159,28,0.16);
+}
+
+.section-title {
+    @apply text-3xl md:text-4xl font-serif font-bold mb-4 text-white;
+}
+
+.section-subtitle {
+    @apply text-lg text-gray-300 mb-8;
+}
