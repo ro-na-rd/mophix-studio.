@@ -27,6 +27,7 @@ import MyBookings from './pages/MyBookings';
 import MyProfile from './pages/MyProfile';
 
 // Admin Pages
+import StaffDashboard from './pages/admin/Dashboard';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminGalleries from './pages/admin/Galleries';
 import AdminBookings from './pages/admin/Bookings';
@@ -75,15 +76,21 @@ function App() {
                 <main className="flex-1">
                     <Routes>
                         {/* Public Routes */}
-                        <Route path="/" element={<Home />} />
+                        <Route path="/" element={
+                            isAuthenticated ? (
+                                user?.role === 'admin' ? <Navigate to="/admin/dashboard" replace /> :
+                                user?.role === 'staff' ? <Navigate to="/staff/dashboard" replace /> :
+                                <Home />
+                            ) : <Home />
+                        } />
+                        <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} />
+                        <Route path="/register" element={isAuthenticated ? <Navigate to="/" replace /> : <Register />} />
                         <Route path="/portfolio" element={<Portfolio />} />
                         <Route path="/services" element={<Services />} />
                         <Route path="/services/:id" element={<ServiceDetails />} />
                         <Route path="/blog" element={<Blog />} />
                         <Route path="/blog/:slug" element={<BlogPost />} />
                         <Route path="/contact" element={<Contact />} />
-                        <Route path="/login" element={<Login />} />
-                        <Route path="/register" element={<Register />} />
 
                         {/* Client Routes */}
                         <Route
@@ -111,7 +118,21 @@ function App() {
                             }
                         />
 
+                        {/* Staff Routes */}
+                        <Route
+                            path="/staff/dashboard"
+                            element={
+                                <ProtectedRoute requiredRole="staff">
+                                    <StaffDashboard />
+                                </ProtectedRoute>
+                            }
+                        />
+
                         {/* Admin Routes */}
+                        <Route
+                            path="/admin"
+                            element={<Navigate to="/admin/dashboard" replace />}
+                        />
                         <Route
                             path="/admin/dashboard"
                             element={
@@ -123,7 +144,7 @@ function App() {
                         <Route
                             path="/admin/galleries"
                             element={
-                                <ProtectedRoute requiredRole="admin">
+                                <ProtectedRoute requiredRole="staff">
                                     <AdminGalleries />
                                 </ProtectedRoute>
                             }
@@ -131,7 +152,7 @@ function App() {
                         <Route
                             path="/admin/bookings"
                             element={
-                                <ProtectedRoute requiredRole="admin">
+                                <ProtectedRoute requiredRole="staff">
                                     <AdminBookings />
                                 </ProtectedRoute>
                             }
@@ -147,7 +168,7 @@ function App() {
                         <Route
                             path="/admin/inquiries"
                             element={
-                                <ProtectedRoute requiredRole="admin">
+                                <ProtectedRoute requiredRole="staff">
                                     <AdminInquiries />
                                 </ProtectedRoute>
                             }
