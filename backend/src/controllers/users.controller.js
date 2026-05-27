@@ -6,11 +6,13 @@ const { AppError } = require('../middleware/errorHandler');
 // Get all users (Admin only)
 const getAllUsers = async (req, res, next) => {
     try {
-        const { role, is_active = true, page = 1, limit = 20 } = req.query;
+        const { role, is_active, page = 1, limit = 50 } = req.query;
         
         const where = {};
         if (role) where.role = role;
-        if (is_active !== undefined) where.is_active = is_active === 'true';
+        if (is_active !== undefined && is_active !== '') {
+            where.is_active = is_active === 'true' || is_active === true;
+        }
 
         const offset = (page - 1) * limit;
 

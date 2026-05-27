@@ -67,8 +67,7 @@ export const galleriesService = {
     create: (data) => api.post('/galleries', data),
     update: (id, data) => api.put(`/galleries/${id}`, data),
     delete: (id) => api.delete(`/galleries/${id}`),
-    
-    // Photo operations
+    getPhotos: (galleryId, params) => api.get(`/galleries/${galleryId}/photos`, { params }),
     uploadPhoto: (galleryId, formData) => 
         api.post(`/galleries/${galleryId}/photos`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' }

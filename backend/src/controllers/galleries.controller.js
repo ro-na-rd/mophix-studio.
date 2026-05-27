@@ -184,7 +184,10 @@ const getGalleryPhotos = async (req, res, next) => {
 // Upload photo
 const uploadPhoto = async (req, res, next) => {
     try {
-        const { gallery_id, title, description, is_featured } = req.body;
+        // gallery id comes from route: POST /galleries/:id/photos
+        const gallery_id = req.params.id ?? req.body.gallery_id;
+        const { title, description, is_featured } = req.body;
+
 
         if (!req.file) {
             return next(new AppError('No file uploaded', 400));

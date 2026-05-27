@@ -15,7 +15,7 @@ const {
 async function seed() {
   console.log('Starting seed script...');
   await sequelize.authenticate();
-  await sequelize.sync({ alter: true });
+  await sequelize.sync({ force: true });
 
   const [admin] = await User.findOrCreate({
     where: { email: 'admin@mophixstudio.com' },

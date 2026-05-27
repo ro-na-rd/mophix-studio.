@@ -40,6 +40,17 @@ const BlogPost = () => {
       <div className="max-w-3xl mx-auto">
         <div className="mb-6">
           <p className="text-sm uppercase tracking-[0.3em] text-secondary mb-2">Blog</p>
+
+          {post.image && (
+            <div className="mb-8 rounded-2xl overflow-hidden shadow-2xl">
+              <img 
+                src={post.image.startsWith('/') ? post.image : `http://localhost:5000/${post.image}`} 
+                alt={post.title} 
+                className="w-full object-cover max-h-[500px]"
+              />
+            </div>
+          )}
+
           <h1 className="section-title">{post.title}</h1>
           <p className="text-gray-600">{post.summary || post.excerpt || 'Studio news and photography advice.'}</p>
         </div>

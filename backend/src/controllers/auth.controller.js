@@ -42,13 +42,19 @@ const register = async (req, res, next) => {
         }
 
         // Create user
+        const role = req.body.role;
+
+        // Security: public register can ONLY create clients.
+        // Only admins should create staff roles (handled elsewhere).
+        const userRole = role && ['client', 'staff'].includes(role) ? role : 'client';
+
         const user = await User.create({
             email,
             password_hash: password,
             first_name,
             last_name,
             phone,
-            role: 'client'
+            role: userRole
         });
 
         // Generate token

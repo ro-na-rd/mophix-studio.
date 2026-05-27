@@ -2,7 +2,8 @@
 
 const { Booking, User, ContactInquiry, Testimonial, Gallery, Service } = require('../models');
 const { AppError } = require('../middleware/errorHandler');
-const { Op } = require('sequelize');
+const { Op, sequelize } = require('sequelize');
+
 
 // Get dashboard statistics
 const getDashboardStats = async (req, res, next) => {
@@ -12,6 +13,7 @@ const getDashboardStats = async (req, res, next) => {
         const totalClients = await User.count({ where: { role: 'client' } });
         const totalBookings = await Booking.count();
         const totalInquiries = await ContactInquiry.count();
+        const totalGalleries = await Gallery.count();
         
         // Bookings by status
         const bookingsByStatus = await Booking.count({ 
@@ -24,7 +26,7 @@ const getDashboardStats = async (req, res, next) => {
             limit: 10,
             order: [['created_at', 'DESC']],
             include: [
-                { model: User, attributes: ['first_name', 'last_name'] },
+                { model: User, attributes: ['first_name', 'last_name', 'email'] },
                 { model: Service, attributes: ['name'] }
             ]
         });
@@ -40,21 +42,26 @@ const getDashboardStats = async (req, res, next) => {
         });
 
         // Average testimonial rating
+        // Sequelize 6/7 security fix: attributes cannot contain parentheses unless wrapped in literal()
         const avgRating = await Testimonial.findOne({
             attributes: [
-                ['AVG(rating)', 'average_rating'],
-                ['COUNT(*)', 'total_reviews']
+                [require('sequelize').fn('AVG', require('sequelize').col('rating')), 'average_rating'],
+                [require('sequelize').fn('COUNT', require('sequelize').col('rating')), 'total_reviews']
             ],
+
+
             where: { is_approved: true }
         });
+
 
         // Popular services
         const popularServices = await Booking.findAll({
             attributes: [
-                [sequelize.col('Service.service_id'), 'service_id'],
-                [sequelize.col('Service.name'), 'service_name'],
-                [sequelize.fn('COUNT', sequelize.col('Booking.booking_id')), 'booking_count']
+                [require('sequelize').col('Service.service_id'), 'service_id'],
+                [require('sequelize').col('Service.name'), 'service_name'],
+                [require('sequelize').fn('COUNT', require('sequelize').col('Booking.booking_id')), 'booking_count']
             ],
+
             include: [
                 { model: Service, attributes: [] }
             ],
@@ -75,6 +82,7 @@ const getDashboardStats = async (req, res, next) => {
                     admins: await User.count({ where: { role: 'admin' } })
                 },
                 bookings: {
+                total_galleries: totalGalleries,
                     total: totalBookings,
                     byStatus: bookingsByStatus,
                     recent: recentBookings

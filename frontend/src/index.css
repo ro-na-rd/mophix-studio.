@@ -1,9 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 * {
     @apply box-border;
+    scroll-behavior: smooth;
+}
+
+:root {
+    --primary: #f97316;
+    --primary-dark: #ea580c;
+    --primary-light: #fb923c;
+    --bg-dark: #0a0a0a;
+    --bg-card: #111111;
+    --bg-card-hover: #181818;
+    --border: rgba(249, 115, 22, 0.2);
+    --text-muted: #9ca3af;
 }
 
 html {
@@ -11,71 +25,504 @@ html {
 }
 
 body {
-    @apply bg-black text-white;
     font-family: 'Inter', sans-serif;
-    background: radial-gradient(circle at top, rgba(255,159,28,0.15), transparent 35%),
-      radial-gradient(circle at bottom right, rgba(255,159,28,0.12), transparent 20%),
-      #000000;
+    background-color: #0a0a0a;
+    color: #ffffff;
+    min-height: 100vh;
+    background-image:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(249, 115, 22, 0.12), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(249, 115, 22, 0.06), transparent);
 }
 
 h1, h2, h3, h4, h5, h6 {
-    @apply font-serif font-bold;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
 }
 
+/* ============================
+   SCROLLBAR
+   ============================ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-thumb { background: #f97316; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #fb923c; }
+
+/* ============================
+   BUTTONS
+   ============================ */
 .btn-primary {
-    @apply px-6 py-3 bg-orange-500 text-black font-semibold rounded-xl shadow-lg hover:bg-orange-400 transition-all duration-200;
+    @apply inline-flex items-center gap-2 px-7 py-3 bg-orange-500 text-black font-semibold rounded-xl
+           shadow-lg hover:bg-orange-400 hover:shadow-orange-500/30 hover:shadow-xl
+           transition-all duration-300 active:scale-95;
 }
 
 .btn-secondary {
-    @apply px-6 py-3 bg-neutral-900 text-orange-400 font-semibold rounded-xl border border-orange-500 hover:bg-orange-500 hover:text-black transition-all duration-200;
+    @apply inline-flex items-center gap-2 px-7 py-3 bg-transparent text-orange-400 font-semibold
+           rounded-xl border border-orange-500/60 hover:bg-orange-500 hover:text-black hover:border-orange-500
+           transition-all duration-300 active:scale-95;
 }
 
 .btn-outline {
-    @apply px-6 py-3 border-2 border-orange-500 text-orange-400 rounded-xl hover:bg-orange-500 hover:text-black transition-all duration-200;
+    @apply inline-flex items-center gap-2 px-7 py-3 border border-white/20 text-white font-medium
+           rounded-xl hover:border-orange-500/60 hover:text-orange-400
+           transition-all duration-300 active:scale-95;
 }
 
+.btn-ghost {
+    @apply inline-flex items-center gap-2 px-4 py-2 text-gray-400 font-medium rounded-lg
+           hover:bg-white/5 hover:text-orange-400 transition-all duration-200;
+}
+
+.btn-danger {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-400 font-medium
+           rounded-lg border border-red-500/20 hover:bg-red-500 hover:text-white
+           transition-all duration-200 text-sm;
+}
+
+.btn-success {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 text-green-400 font-medium
+           rounded-lg border border-green-500/20 hover:bg-green-500 hover:text-white
+           transition-all duration-200 text-sm;
+}
+
+/* ============================
+   CARDS
+   ============================ */
 .card {
-    @apply bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 overflow-hidden;
+    background: #111111;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 1.25rem;
+    transition: all 0.3s ease;
 }
 
+.card:hover {
+    border-color: rgba(249, 115, 22, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(249,115,22,0.1);
+}
+
+.card-glass {
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.card-glass:hover {
+    background: rgba(249, 115, 22, 0.05);
+    border-color: rgba(249, 115, 22, 0.2);
+}
+
+/* ============================
+   FORM ELEMENTS
+   ============================ */
+.form-label {
+    @apply block text-sm font-medium text-gray-300 mb-2;
+}
+
+.form-input {
+    @apply w-full px-4 py-3 rounded-xl text-white placeholder:text-gray-600 text-sm
+           focus:outline-none transition-all duration-200;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.form-input:focus {
+    border-color: rgba(249, 115, 22, 0.6);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.form-select {
+    @apply w-full px-4 py-3 rounded-xl text-white text-sm
+           focus:outline-none transition-all duration-200 appearance-none cursor-pointer;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.form-select:focus {
+    border-color: rgba(249, 115, 22, 0.6);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.form-textarea {
+    @apply w-full px-4 py-3 rounded-xl text-white placeholder:text-gray-600 text-sm
+           focus:outline-none transition-all duration-200 resize-none;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    min-height: 120px;
+}
+
+.form-textarea:focus {
+    border-color: rgba(249, 115, 22, 0.6);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+/* Legacy aliases */
+.input-field { @apply form-input; }
+.auth-input { @apply form-input; }
+
+/* ============================
+   SECTION TYPOGRAPHY
+   ============================ */
+.section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+}
+
+.section-subtitle {
+    @apply text-gray-400 text-lg leading-relaxed mb-8;
+    max-width: 600px;
+}
+
+.section-tag {
+    @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em]
+           text-orange-400 mb-4;
+}
+
+.section-tag::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 1px;
+}
+
+/* ============================
+   AUTH PAGES
+   ============================ */
 .auth-page {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 4rem 1rem;
-    background: linear-gradient(180deg, #090909 0%, #120900 55%, #000000 100%);
+    background: linear-gradient(180deg, #0a0a0a 0%, #110800 50%, #0a0a0a 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-page::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(circle, rgba(249, 115, 22, 0.12), transparent 70%);
+    pointer-events: none;
 }
 
 .auth-card {
-    @apply w-full max-w-xl rounded-3xl p-10 border border-orange-500 bg-[#111111] shadow-[0_20px_60px_rgba(0,0,0,0.55)];
+    @apply w-full max-w-lg rounded-3xl p-10 relative;
+    background: #111111;
+    border: 1px solid rgba(249, 115, 22, 0.2);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(249,115,22,0.05) inset;
 }
 
 .auth-title {
-    @apply text-4xl font-serif font-bold mb-3 text-white;
+    font-family: 'Playfair Display', serif;
+    @apply text-4xl font-bold mb-2 text-white;
 }
 
 .auth-subtitle {
-    @apply text-base text-gray-300 max-w-2xl;
+    @apply text-gray-400 mb-8;
 }
 
-.auth-input {
-    @apply bg-[#111111] border border-gray-700 text-white placeholder:text-gray-500;
+/* ============================
+   BADGES & STATUS
+   ============================ */
+.badge {
+    @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold;
 }
 
-.input-field {
-    @apply w-full px-4 py-3 rounded-xl focus:outline-none focus:border-orange-400 transition-colors duration-200;
+.badge-pending {
+    @apply bg-yellow-500/10 text-yellow-400 border border-yellow-500/20;
 }
 
-.input-field:focus {
-    outline: none;
-    box-shadow: 0 0 0 4px rgba(255,159,28,0.16);
+.badge-confirmed {
+    @apply bg-blue-500/10 text-blue-400 border border-blue-500/20;
 }
 
-.section-title {
-    @apply text-3xl md:text-4xl font-serif font-bold mb-4 text-white;
+.badge-completed {
+    @apply bg-green-500/10 text-green-400 border border-green-500/20;
 }
 
-.section-subtitle {
-    @apply text-lg text-gray-300 mb-8;
+.badge-cancelled {
+    @apply bg-red-500/10 text-red-400 border border-red-500/20;
 }
+
+.badge-approved {
+    @apply bg-green-500/10 text-green-400 border border-green-500/20;
+}
+
+.badge-published {
+    @apply bg-blue-500/10 text-blue-400 border border-blue-500/20;
+}
+
+.badge-draft {
+    @apply bg-gray-500/10 text-gray-400 border border-gray-500/20;
+}
+
+.badge-admin {
+    @apply bg-orange-500/10 text-orange-400 border border-orange-500/20;
+}
+
+.badge-staff {
+    @apply bg-purple-500/10 text-purple-400 border border-purple-500/20;
+}
+
+.badge-client {
+    @apply bg-cyan-500/10 text-cyan-400 border border-cyan-500/20;
+}
+
+/* ============================
+   TABLES
+   ============================ */
+.admin-table {
+    @apply w-full text-sm;
+}
+
+.admin-table thead tr {
+    @apply border-b border-white/5;
+}
+
+.admin-table thead th {
+    @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500;
+}
+
+.admin-table tbody tr {
+    @apply border-b border-white/5 transition-colors duration-150 hover:bg-white/5;
+}
+
+.admin-table tbody td {
+    @apply px-4 py-4 text-gray-300;
+}
+
+/* ============================
+   NAVIGATION TABS
+   ============================ */
+.nav-tabs {
+    @apply flex gap-1 p-1 rounded-xl;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+.nav-tab {
+    @apply flex-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-400 text-center
+           transition-all duration-200 cursor-pointer;
+}
+
+.nav-tab.active {
+    @apply bg-orange-500 text-black;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+}
+
+.nav-tab:not(.active):hover {
+    @apply text-white;
+    background: rgba(255,255,255,0.05);
+}
+
+/* ============================
+   STATS CARDS
+   ============================ */
+.stat-card {
+    @apply rounded-2xl p-6 relative overflow-hidden;
+    background: #111111;
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.05;
+    transform: translate(20px, -20px);
+}
+
+/* ============================
+   GALLERY / PORTFOLIO
+   ============================ */
+.gallery-item {
+    @apply relative overflow-hidden rounded-2xl cursor-pointer;
+    aspect-ratio: 4/3;
+}
+
+.gallery-item img {
+    @apply w-full h-full object-cover transition-transform duration-500;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.07);
+}
+
+.gallery-item .overlay {
+    @apply absolute inset-0 flex flex-col justify-end p-5 opacity-0 transition-opacity duration-300;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%);
+}
+
+.gallery-item:hover .overlay {
+    @apply opacity-100;
+}
+
+/* ============================
+   HERO SECTION
+   ============================ */
+.hero-gradient {
+    background: radial-gradient(ellipse 100% 80% at 50% 0%, rgba(249, 115, 22, 0.15), transparent 60%);
+}
+
+/* ============================
+   DIVIDERS
+   ============================ */
+.divider {
+    @apply border-t;
+    border-color: rgba(255,255,255,0.06);
+}
+
+/* ============================
+   SKELETON LOADING
+   ============================ */
+.skeleton {
+    @apply rounded-xl animate-pulse;
+    background: rgba(255,255,255,0.06);
+}
+
+/* ============================
+   ANIMATIONS
+   ============================ */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.4s ease forwards;
+}
+
+/* ============================
+   ADMIN SIDEBAR LAYOUT
+   ============================ */
+.admin-layout {
+    @apply flex min-h-screen;
+}
+
+.admin-sidebar {
+    @apply w-64 flex-shrink-0 flex flex-col;
+    background: #0d0d0d;
+    border-right: 1px solid rgba(255,255,255,0.06);
+}
+
+.admin-content {
+    @apply flex-1 min-h-screen overflow-auto;
+    background: #0a0a0a;
+}
+
+.admin-nav-item {
+    @apply flex items-center gap-3 px-4 py-3 mx-2 rounded-xl text-sm font-medium
+           text-gray-400 transition-all duration-200 cursor-pointer;
+}
+
+.admin-nav-item:hover {
+    @apply text-white;
+    background: rgba(255,255,255,0.05);
+}
+
+.admin-nav-item.active {
+    @apply text-black font-semibold;
+    background: #f97316;
+}
+
+/* ============================
+   MODAL / DIALOG
+   ============================ */
+.modal-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    @apply w-full max-w-lg rounded-3xl p-8 relative;
+    background: #111111;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+}
+
+/* ============================
+   TOAST OVERRIDES
+   ============================ */
+.react-hot-toast {
+    font-family: 'Inter', sans-serif !important;
+}
+
+/* ============================
+   RONARD-STYLE EDITORIAL TEXTURES
+   (CSS-only overlays; does not alter photo files)
+   ============================ */
+.ronard-grain {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.18;
+    background-image:
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/></filter><rect width="120" height="120" filter="url(%23n)" opacity="0.45"/></svg>');
+    background-size: 240px 240px;
+    mix-blend-mode: overlay;
+}
+
+.ronard-vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background:
+        radial-gradient(1200px 600px at 50% 20%, rgba(255,255,255,0.07), transparent 55%),
+        radial-gradient(900px 520px at 50% 70%, rgba(249,115,22,0.10), transparent 60%),
+        radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.72) 100%);
+    mix-blend-mode: multiply;
+}
+
+/* ============================
+   RESPONSIVE UTILITIES
+   ============================ */
+.container {
+    @apply mx-auto px-4 sm:px-6 lg:px-8;
+    max-width: 1280px;
+}
+
+/* Page section spacing */
+.page-section {
+    @apply py-20;
+}
+
+.page-header {
+    @apply py-16 text-center;
+}
+
