@@ -27,6 +27,6 @@
     }
   ],
   "env": {
-    "REACT_APP_API_URL": "@react_app_api_url"
+"REACT_APP_API_URL": "https://my-studio-5ywa-pkd6pdwh8-musinguzis-projects.vercel.app/api/v1"
   }
 }
