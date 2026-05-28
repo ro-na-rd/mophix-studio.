@@ -2,6 +2,8 @@
 import { Link } from 'react-router-dom';
 import { servicesService, galleriesService, testimonialsService } from '../services/api';
 import { useAuthStore } from '../store';
+import { getBackendAssetUrl } from '../utils/apiUrl';
+
 
 const STATIC_SERVICES = [
   {
@@ -57,7 +59,7 @@ const STATIC_SERVICES = [
 const STATIC_PORTFOLIO = [
   {
     id: 1,
-    title: 'Elegant Wedding Ceremony',
+    title: 'Wedding',
     image: '/assets/wedding.jpg.jpeg',
     category: 'Wedding',
   },
@@ -81,7 +83,7 @@ const STATIC_PORTFOLIO = [
   },
   {
     id: 5,
-    title: 'Studio Elegance',
+    title: 'Studio',
     image: '/assets/studio.jpg.jpeg',
     category: 'Studio',
   },
@@ -179,8 +181,10 @@ export default function Home() {
   // Helper to determine image source (Static vs API)
   const getImgSrc = (src) => {
     if (!src) return 'https://via.placeholder.com/800x600?text=No+Image';
-    if (src.startsWith('http') || src.startsWith('/assets')) return src;
-    return `http://localhost:5000/${src}`; // Replace with your actual backend URL
+    if (src.startsWith('/assets/')) {
+      return src;
+    }
+    return getBackendAssetUrl(src);
   };
 
   useEffect(() => {

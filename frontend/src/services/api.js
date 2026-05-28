@@ -1,147 +1,205 @@
-// API Service - Axios instance and API calls
-
-import axios from 'axios';
+// API Service - Fetch wrapper (no axios to avoid webpack Node polyfill issues)
 
 const API_URL = process.env.REACT_APP_API_URL || '/api/v1';
 
-// Create axios instance
-export const api = axios.create({
-    baseURL: API_URL,
-    timeout: 10000,
-    headers: {
-        'Content-Type': 'application/json',
-    }
-});
+function getToken() {
+  return localStorage.getItem('token');
+}
 
-// Request interceptor to add auth token
-api.interceptors.request.use(
-    config => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    error => Promise.reject(error)
-);
+function buildHeaders(extraHeaders = {}) {
+  const token = getToken();
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : null),
+    ...extraHeaders,
+  };
+}
 
-// Response interceptor to handle errors
-api.interceptors.response.use(
-    response => response.data,
-    error => {
-        if (error.response?.status === 401) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = '/login';
-        }
-        return Promise.reject(error.response?.data || error.message);
-    }
-);
+async function request(path, { method = 'GET', params, body, headers } = {}) {
+  let url = API_URL.replace(/\/$/, '') + path;
+
+  if (params && typeof params === 'object') {
+    const sp = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v === undefined || v === null) return;
+      sp.append(k, String(v));
+    });
+    url += `?${sp.toString()}`;
+  }
+
+  const res = await fetch(url, {
+    method,
+    headers: buildHeaders(headers),
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+    credentials: 'include',
+  });
+
+  if (res.status === 401) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+    // keep behavior similar to axios interceptor
+    throw new Error('Unauthorized');
+  }
+
+  // Some endpoints may return empty body
+  const text = await res.text();
+  const data = text ? safeJsonParse(text) : undefined;
+
+  if (!res.ok) {
+    const message = data?.message || data?.error || data?.errors?.[0]?.msg || res.statusText;
+    throw new Error(message);
+  }
+
+  // Match axios previous behavior: resolve to response.data
+  return data;
+}
+
+function safeJsonParse(text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+}
+
+async function upload(path, formData) {
+  let url = API_URL.replace(/\/$/, '') + path;
+
+  const token = getToken();
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    body: formData,
+    credentials: 'include',
+  });
+
+  if (res.status === 401) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+    throw new Error('Unauthorized');
+  }
+
+  const text = await res.text();
+  const data = text ? safeJsonParse(text) : undefined;
+
+  if (!res.ok) {
+    const message = data?.message || data?.error || data?.errors?.[0]?.msg || res.statusText;
+    throw new Error(message);
+  }
+
+  return data;
+}
 
 // ============ AUTH SERVICES ============
 
 export const authService = {
-    register: (data) => api.post('/auth/register', data),
-    login: (email, password) => api.post('/auth/login', { email, password }),
-    getCurrentUser: () => api.get('/auth/me'),
-    logout: () => api.post('/auth/logout'),
-    requestPasswordReset: (email) => api.post('/auth/request-password-reset', { email }),
-    resetPassword: (data) => api.post('/auth/reset-password', data),
+  register: (data) => request('/auth/register', { method: 'POST', body: data }),
+  login: (email, password) => request('/auth/login', { method: 'POST', body: { email, password } }),
+  getCurrentUser: () => request('/auth/me', { method: 'GET' }),
+  logout: () => request('/auth/logout', { method: 'POST' }),
+  requestPasswordReset: (email) => request('/auth/request-password-reset', { method: 'POST', body: { email } }),
+  resetPassword: (data) => request('/auth/reset-password', { method: 'POST', body: data }),
 };
 
 // ============ SERVICES SERVICES ============
 
 export const servicesService = {
-    getAll: (params) => api.get('/services', { params }),
-    getById: (id) => api.get(`/services/${id}`),
-    create: (data) => api.post('/services', data),
-    update: (id, data) => api.put(`/services/${id}`, data),
-    delete: (id) => api.delete(`/services/${id}`),
+  getAll: (params) => request('/services', { method: 'GET', params }),
+  getById: (id) => request(`/services/${id}`, { method: 'GET' }),
+  create: (data) => request('/services', { method: 'POST', body: data }),
+  update: (id, data) => request(`/services/${id}`, { method: 'PUT', body: data }),
+  delete: (id) => request(`/services/${id}`, { method: 'DELETE' }),
 };
 
 // ============ GALLERIES SERVICES ============
 
 export const galleriesService = {
-    getAll: (params) => api.get('/galleries', { params }),
-    getById: (id) => api.get(`/galleries/${id}`),
-    create: (data) => api.post('/galleries', data),
-    update: (id, data) => api.put(`/galleries/${id}`, data),
-    delete: (id) => api.delete(`/galleries/${id}`),
-    getPhotos: (galleryId, params) => api.get(`/galleries/${galleryId}/photos`, { params }),
-    uploadPhoto: (galleryId, formData) => 
-        api.post(`/galleries/${galleryId}/photos`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        }),
-    updatePhoto: (photoId, data) => api.put(`/galleries/photos/${photoId}`, data),
-    deletePhoto: (photoId) => api.delete(`/galleries/photos/${photoId}`),
+  getAll: (params) => request('/galleries', { method: 'GET', params }),
+  getById: (id) => request(`/galleries/${id}`, { method: 'GET' }),
+  create: (data) => request('/galleries', { method: 'POST', body: data }),
+  update: (id, data) => request(`/galleries/${id}`, { method: 'PUT', body: data }),
+  delete: (id) => request(`/galleries/${id}`, { method: 'DELETE' }),
+  getPhotos: (galleryId, params) => request(`/galleries/${galleryId}/photos`, { method: 'GET', params }),
+  uploadPhoto: (galleryId, formData) => upload(`/galleries/${galleryId}/photos`, formData),
+  updatePhoto: (photoId, data) => request(`/galleries/photos/${photoId}`, { method: 'PUT', body: data }),
+  deletePhoto: (photoId) => request(`/galleries/photos/${photoId}`, { method: 'DELETE' }),
 };
 
 // ============ BOOKINGS SERVICES ============
 
 export const bookingsService = {
-    getAll: (params) => api.get('/bookings', { params }),
-    getById: (id) => api.get(`/bookings/${id}`),
-    create: (data) => api.post('/bookings', data),
-    updateStatus: (id, status, notes) => 
-        api.patch(`/bookings/${id}/status`, { status, notes }),
-    updatePaymentStatus: (id, payment_status) =>
-        api.patch(`/bookings/${id}/payment`, { payment_status }),
-    delete: (id) => api.delete(`/bookings/${id}`),
-    getCalendar: (month, year) => api.get(`/bookings/calendar/${month}/${year}`),
+  getAll: (params) => request('/bookings', { method: 'GET', params }),
+  getById: (id) => request(`/bookings/${id}`, { method: 'GET' }),
+  create: (data) => request('/bookings', { method: 'POST', body: data }),
+  updateStatus: (id, status, notes) => request(`/bookings/${id}/status`, { method: 'PATCH', body: { status, notes } }),
+  updatePaymentStatus: (id, payment_status) => request(`/bookings/${id}/payment`, { method: 'PATCH', body: { payment_status } }),
+  delete: (id) => request(`/bookings/${id}`, { method: 'DELETE' }),
+  getCalendar: (month, year) => request(`/bookings/calendar/${month}/${year}`, { method: 'GET' }),
 };
 
 // ============ TESTIMONIALS SERVICES ============
 
 export const testimonialsService = {
-    getAll: (params) => api.get('/testimonials', { params }),
-    getAverageRating: () => api.get('/testimonials/rating/average'),
-    create: (data) => api.post('/testimonials', data),
-    getPending: (params) => api.get('/testimonials/pending', { params }),
-    approve: (id, data) => api.post(`/testimonials/${id}/approve`, data),
-    reject: (id) => api.post(`/testimonials/${id}/reject`),
+  getAll: (params) => request('/testimonials', { method: 'GET', params }),
+  getAverageRating: () => request('/testimonials/rating/average', { method: 'GET' }),
+  create: (data) => request('/testimonials', { method: 'POST', body: data }),
+  getPending: (params) => request('/testimonials/pending', { method: 'GET', params }),
+  approve: (id, data) => request(`/testimonials/${id}/approve`, { method: 'POST', body: data }),
+  reject: (id) => request(`/testimonials/${id}/reject`, { method: 'POST' }),
 };
 
 // ============ CONTACT SERVICES ============
 
 export const contactService = {
-    submit: (data) => api.post('/contact', data),
-    getAll: (params) => api.get('/contact', { params }),
-    getById: (id) => api.get(`/contact/${id}`),
-    updateStatus: (id, status) => api.patch(`/contact/${id}/status`, { status }),
-    respond: (id, response_message) => 
-        api.post(`/contact/${id}/respond`, { response_message }),
-    getStats: () => api.get('/contact/stats'),
+  submit: (data) => request('/contact', { method: 'POST', body: data }),
+  getAll: (params) => request('/contact', { method: 'GET', params }),
+  getById: (id) => request(`/contact/${id}`, { method: 'GET' }),
+  updateStatus: (id, status) => request(`/contact/${id}/status`, { method: 'PATCH', body: { status } }),
+  respond: (id, response_message) => request(`/contact/${id}/respond`, { method: 'POST', body: { response_message } }),
+  getStats: () => request('/contact/stats', { method: 'GET' }),
 };
 
 // ============ BLOG SERVICES ============
 
 export const blogService = {
-    getPosts: (params) => api.get('/blog', { params }),
-    getCategories: () => api.get('/blog/categories'),
-    getPostBySlug: (slug) => api.get(`/blog/post/${slug}`),
-    create: (data) => api.post('/blog', data),
-    update: (id, data) => api.put(`/blog/${id}`, data),
-    delete: (id) => api.delete(`/blog/${id}`),
-    getDrafts: (params) => api.get('/blog/drafts', { params }),
-    createCategory: (data) => api.post('/blog/categories', data),
+  getPosts: (params) => request('/blog', { method: 'GET', params }),
+  getCategories: () => request('/blog/categories', { method: 'GET' }),
+  getPostBySlug: (slug) => request(`/blog/post/${slug}`, { method: 'GET' }),
+  create: (data) => request('/blog', { method: 'POST', body: data }),
+  update: (id, data) => request(`/blog/${id}`, { method: 'PUT', body: data }),
+  delete: (id) => request(`/blog/${id}`, { method: 'DELETE' }),
+  getDrafts: (params) => request('/blog/drafts', { method: 'GET', params }),
+  createCategory: (data) => request('/blog/categories', { method: 'POST', body: data }),
 };
 
 // ============ USERS SERVICES ============
 
 export const usersService = {
-    getAll: (params) => api.get('/users', { params }),
-    getById: (id) => api.get(`/users/${id}`),
-    updateProfile: (id, data) => api.put(`/users/${id}`, data),
-    updateRole: (id, role) => api.put(`/users/${id}/role`, { role }),
-    toggleActive: (id) => api.patch(`/users/${id}/toggle-active`),
+  getAll: (params) => request('/users', { method: 'GET', params }),
+  getById: (id) => request(`/users/${id}`, { method: 'GET' }),
+  updateProfile: (id, data) => request(`/users/${id}`, { method: 'PUT', body: data }),
+  updateRole: (id, role) => request(`/users/${id}/role`, { method: 'PUT', body: { role } }),
+  toggleActive: (id) => request(`/users/${id}/toggle-active`, { method: 'PATCH' }),
 };
 
 // ============ DASHBOARD SERVICES ============
 
 export const dashboardService = {
-    getStats: () => api.get('/dashboard/stats'),
-    getBookingAnalytics: (params) => api.get('/dashboard/bookings/analytics', { params }),
-    getRevenueReport: (params) => api.get('/dashboard/revenue/report', { params }),
+  getStats: () => request('/dashboard/stats', { method: 'GET' }),
+  getBookingAnalytics: (params) => request('/dashboard/bookings/analytics', { method: 'GET', params }),
+  getRevenueReport: (params) => request('/dashboard/revenue/report', { method: 'GET', params }),
+};
+
+// default export for backward compatibility (some code may import api default)
+const api = {
+  request,
+  upload,
+  get baseURL() {
+    return API_URL;
+  },
 };
 
 export default api;
+

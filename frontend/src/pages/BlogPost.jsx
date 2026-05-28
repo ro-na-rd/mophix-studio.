@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { blogService } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { getBackendAssetUrl } from '../utils/apiUrl';
+
+
 
 const BlogPost = () => {
   const { slug } = useParams();
@@ -44,7 +47,7 @@ const BlogPost = () => {
           {post.image && (
             <div className="mb-8 rounded-2xl overflow-hidden shadow-2xl">
               <img 
-                src={post.image.startsWith('/') ? post.image : `http://localhost:5000/${post.image}`} 
+                src={post.image.startsWith('/assets/') ? post.image : getBackendAssetUrl(post.image)} 
                 alt={post.title} 
                 className="w-full object-cover max-h-[500px]"
               />
